@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced To-Do App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(to right, #4a00e0, #8e2de2);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4a00e0;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .task-form {
+            padding: 20px;
+            display: flex;
+            gap: 10px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .task-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .task-input:focus {
+            border-color: #4a00e0;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 0, 224, 0.1);
+        }
+
+        .task-form button {
+            padding: 12px 20px;
+            background: #4a00e0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .task-form button:hover {
+            background: #3a00b0;
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            padding: 15px;
+            gap: 10px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .filters button {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filters button.active {
+            background: #4a00e0;
+            color: white;
+            border-color: #4a00e0;
+        }
+
+        .filters button:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .task-list {
+            list-style: none;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.3s;
+            animation: fadeIn 0.5s;
+        }
+
+        .task-item:hover {
+            background: #f8f9fa;
+        }
+
+        .task-item.completed {
+            background: #f0f8ff;
+        }
+
+        .task-checkbox {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 1rem;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .edit-btn {
+            color: #17a2b8;
+        }
+
+        .edit-btn:hover {
+            background: rgba(23, 162, 184, 0.1);
+        }
+
+        .delete-btn {
+            color: #dc3545;
+        }
+
+        .delete-btn:hover {
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .priority-select {
+            margin-left: 10px;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            font-size: 0.8rem;
+        }
+
+        .priority-high {
+            border-left: 4px solid #dc3545;
+        }
+
+        .priority-medium {
+            border-left: 4px solid #ffc107;
+        }
+
+        .priority-low {
+            border-left: 4px solid #28a745;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state img {
+            width: 100px;
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .task-form {
+                flex-direction: column;
+            }
+            
+            .filters {
+                flex-wrap: wrap;
+            }
+            
+            .task-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .task-actions {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            // State for tasks and filter
+            const [tasks, setTasks] = useState([]);
+            const [newTask, setNewTask] = useState("");
+            const [filter, setFilter] = useState("All");
+            const [editId, setEditId] = useState(null);
+            const [searchTerm, setSearchTerm] = useState("");
+            const [priority, setPriority] = useState("medium");
+
+            // Load tasks from localStorage on mount
+            useEffect(() => {
+                const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                setTasks(savedTasks);
+            }, []);
+
+            // Save tasks to localStorage whenever tasks change
+            useEffect(() => {
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+            }, [tasks]);
+
+            // Add or Edit Task
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!newTask.trim()) return;
+
+                if (editId) {
+                    setTasks(
+                        tasks.map((task) =>
+                            task.id === editId ? { ...task, text: newTask, priority } : task
+                        )
+                    );
+                    setEditId(null);
+                } else {
+                    setTasks([
+                        ...tasks,
+                        { 
+                            id: Date.now(), 
+                            text: newTask, 
+                            completed: false, 
+                            priority,
+                            createdAt: new Date().toISOString()
+                        },
+                    ]);
+                }
+                setNewTask("");
+                setPriority("medium");
+            };
+
+            // Toggle complete
+            const toggleComplete = (id) => {
+                setTasks(
+                    tasks.map((task) =>
+                        task.id === id ? { ...task, completed: !task.completed } : task
+                    )
+                );
+            };
+
+            // Delete Task
+            const deleteTask = (id) => {
+                setTasks(tasks.filter((task) => task.id !== id));
+            };
+
+            // Edit Task
+            const editTask = (id, text, taskPriority) => {
+                setNewTask(text);
+                setPriority(taskPriority);
+                setEditId(id);
+            };
+
+            // Clear all completed tasks
+            const clearCompleted = () => {
+                setTasks(tasks.filter(task => !task.completed));
+            };
+
+            // Update task priority
+            const updatePriority = (id, newPriority) => {
+                setTasks(
+                    tasks.map((task) =>
+                        task.id === id ? { ...task, priority: newPriority } : task
+                    )
+                );
+            };
+
+            // Filtered and searched tasks
+            const filteredTasks = tasks.filter((task) => {
+                // First apply search filter
+                if (searchTerm && !task.text.toLowerCase().includes(searchTerm.toLowerCase())) {
+                    return false;
+                }
+                
+                // Then apply status filter
+                if (filter === "Completed") return task.completed;
+                if (filter === "Pending") return !task.completed;
+                return true;
+            });
+
+            // Calculate statistics
+            const totalTasks = tasks.length;
+            const completedTasks = tasks.filter(task => task.completed).length;
+            const pendingTasks = totalTasks - completedTasks;
+
+            return (
+                <div className="app-container">
+                    <header>
+                        <h1>✅ Enhanced To-Do App</h1>
+                        <p className="subtitle">Stay organized and boost your productivity</p>
+                    </header>
+
+                    <div className="stats">
+                        <div className="stat-item">
+                            <div className="stat-value">{totalTasks}</div>
+                            <div className="stat-label">Total</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-value">{completedTasks}</div>
+                            <div className="stat-label">Completed</div>
+                        </div>
+                        <div className="stat-item">
+                            <div className="stat-value">{pendingTasks}</div>
+                            <div className="stat-label">Pending</div>
+                        </div>
+                    </div>
+
+                    {/* Task Input */}
+                    <form onSubmit={handleSubmit} className="task-form">
+                        <input
+                            type="text"
+                            className="task-input"
+                            placeholder="Enter a new task..."
+                            value={newTask}
+                            onChange={(e) => setNewTask(e.target.value)}
+                        />
+                        <select 
+                            value={priority} 
+                            onChange={(e) => setPriority(e.target.value)}
+                            style={{padding: '12px', borderRadius: '8px', border: '2px solid #e9ecef'}}
+                        >
+                            <option value="low">Low Priority</option>
+                            <option value="medium">Medium Priority</option>
+                            <option value="high">High Priority</option>
+                        </select>
+                        <button type="submit">{editId ? "Update Task" : "Add Task"}</button>
+                    </form>
+
+                    {/* Search Box */}
+                    <div className="search-box">
+                        <input
+                            type="text"
+                            className="search-input"
+                            placeholder="Search tasks..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+
+                    {/* Filter Options */}
+                    <div className="filters">
+                        <button 
+                            className={filter === "All" ? "active" : ""}
+                            onClick={() => setFilter("All")}
+                        >
+                            All
+                        </button>
+                        <button 
+                            className={filter === "Pending" ? "active" : ""}
+                            onClick={() => setFilter("Pending")}
+                        >
+                            Pending
+                        </button>
+                        <button 
+                            className={filter === "Completed" ? "active" : ""}
+                            onClick={() => setFilter("Completed")}
+                        >
+                            Completed
+                        </button>
+                        <button onClick={clearCompleted}>
+                            Clear Completed
+                        </button>
+                    </div>
+
+                    {/* Task List */}
+                    <ul className="task-list">
+                        {filteredTasks.length === 0 ? (
+                            <div className="empty-state">
+                                <div>📝</div>
+                                <p>No tasks found. Add a new task to get started!</p>
+                            </div>
+                        ) : (
+                            filteredTasks.map((task) => (
+                                <li 
+                                    key={task.id} 
+                                    className={`task-item ${task.completed ? "completed" : ""} priority-${task.priority}`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="task-checkbox"
+                                        checked={task.completed}
+                                        onChange={() => toggleComplete(task.id)}
+                                    />
+                                    <span className="task-text">{task.text}</span>
+                                    <select 
+                                        value={task.priority} 
+                                        onChange={(e) => updatePriority(task.id, e.target.value)}
+                                        className="priority-select"
+                                    >
+                                        <option value="low">Low</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="high">High</option>
+                                    </select>
+                                    <div className="task-actions">
+                                        <button 
+                                            className="edit-btn"
+                                            onClick={() => editTask(task.id, task.text, task.priority)}
+                                        >
+                                            ✏️
+                                        </button>
+                                        <button 
+                                            className="delete-btn"
+                                            onClick={() => deleteTask(task.id)}
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
+                                </li>
+                            ))
+                        )}
+                    </ul>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
